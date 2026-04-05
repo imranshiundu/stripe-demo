@@ -1,0 +1,14 @@
+{
+  "name": "stripe-demo",
+  "version": "1.0.0",
+  "description": "Demo of turn‑key Stripe Checkout with webhook",
+  "main": "server.js",
+  "scripts": {
+    "start": "node server.js"
+  },
+  "dependencies": {
+    "express": "^4.18.2",
+    "stripe": "^22.0.0",
+    "body-parser": "^1.20.2"
+  }
+}
