@@ -1,50 +1,43 @@
 # stripe-demo
 
-A small Stripe Checkout demo for learning payment flows safely.
+Minimal, honest demo of Stripe Checkout with server-side webhook confirmation —
+Express, one page, one success flow, one webhook handler.
 
-## What it demonstrates
+## What runs
 
-- Creating a Checkout Session
-- Redirecting users to Stripe-hosted checkout
-- Using environment variables for secrets
-- Separating frontend demo code from server payment logic
-- Local development workflow
-
-## Safety rules
-
-Never commit real Stripe secret keys. Use test keys only while learning.
+| File | Role |
+|---|---|
+| `server.js` | Express app: serves `public/`, creates Checkout Sessions, verifies webhook signatures |
+| `public/` | payment page UI |
+| `.env.example` | env shape (never commit the real one) |
 
 ## Setup
 
 ```bash
 npm install
-cp .env.example .env
+cp .env.example .env        # add STRIPE_SECRET_KEY
+node server.js
 ```
 
-Add your Stripe test secret key to `.env`:
+## Endpoints
 
-```env
-STRIPE_SECRET_KEY=sk_test_your_key_here
-PUBLIC_URL=http://localhost:4242
-PORT=4242
-```
+| Method | Path | Purpose |
+|---|---|---|
+| GET | `/` | demo checkout page |
+| POST | `/create-checkout-session` | creates a Stripe Checkout Session and returns its URL |
+| POST | `/webhook` | receives Stripe events using the **raw request body** so signature-check passes |
 
-## Run
+## Webhook correctness (the part demos usually get wrong)
 
-```bash
-npm start
-```
+- Body parsing is intentionally **raw** for `/webhook`:
+  ```js
+  app.use(bodyParser.raw({ type: 'application/json' }));
+  app.use(express.static('public'));
+  ```
+  Stripe requires an unmodified body to verify the webhook signature — this demo keeps
+  Stripe-constructed events trustworthy rather than blindly trusting POSTs.
 
-Open:
+## Scope
 
-```text
-http://localhost:4242
-```
-
-## Recommended next upgrades
-
-- Add webhook signature verification
-- Store orders in a database
-- Add product/price IDs instead of inline amounts
-- Add automated tests for checkout session creation
-- Deploy only after test-mode flow is confirmed
+Single-customer demo scaffolding — extendable to subscriptions/SNS flows but that is
+out of scope until needed.
